@@ -30,9 +30,7 @@
 - Itérations : 1
 ## Exercice 2
 
-## Exercice 2
-
-### Requête 1 – Etape 1
+### Requête 1 - question 1
 - Prompt : « #file:docs/SPEC.md #codebase propose un plan de réalisation en cinq étapes testables, en réutilisant src/core/piece.js »
 - Produit : un plan en 5 étapes, mais rien n'était visible avant l'étape 5, l'étape 1 était déjà faite, game.js n'était jamais créé, et il manquait les couleurs, l'animation, index.html, styles.css et input.js.
 
@@ -49,3 +47,24 @@
 - Corrigé à la main : ajout de la touche P pour la pause à l'étape 4.
 - Gardé : plan sauvegardé dans docs/PLAN.md
 - Itérations : 3
+### Requête 2 – Agent, étape 1 du plan
+- Prompt : « réalise l'étape 1 de #file:docs/PLAN.md »
+- Fichiers créés / modifiés :
+  - src/core/grid.js (créé) : grille 10x20, collisions, fixation d'une pièce, suppression des lignes complètes
+  - src/core/piece.js (modifié) : ajout de PIECE_COLORS (couleurs standard des 7 pièces)
+  - tests/grid.test.js (créé) : grille vide, limites et collisions, fixation avec couleur, suppression de lignes
+  - tests/piece.test.js (modifié) : ajout d'un test sur les couleurs
+- Commandes exécutées : git status, npm test → 8 tests réussis, git diff
+- Remarque : l'agent a supprimé et réécrit des fichiers de cache dans node_modules, hors de la tâche demandée. 
+- Relecture : grid.js ne contient ni document, ni window, ni canvas ; la grille d'origine n'est pas modifiée (copie) ; messages en français ; pas de commentaires dans grid.js
+- Gardé / annulé : Keep, puis commit
+- Itérations : 1
+
+### Requête 3 – Agent, étape 2 du plan
+- Prompt : « réalise l'étape 2 de #file:docs/PLAN.md »
+- Fichiers créés : src/core/game.js (état de la partie : pièce courante et suivante, RNG injectable, déplacements, rotation, chute simple et directe, fixation, Game Over), tests/game.test.js
+- Commandes exécutées : npm test (échec), puis npm test → 12 tests réussis, git status
+- Ajout non demandé : hardDrop (chute directe), absent de la SPEC
+- Relecture : game.js importe grid.js et piece.js, pas de DOM dans src/core
+- Gardé / annulé : gardé, commit
+- Itérations : 1 
