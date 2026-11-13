@@ -68,3 +68,11 @@
 - Relecture : game.js importe grid.js et piece.js, pas de DOM dans src/core
 - Gardé / annulé : gardé, commit
 - Itérations : 1 
+### Requête 4 – Agent, étape 3 du plan
+- Prompt : « réalise l'étape 3 de #file:docs/PLAN.md »
+- Fichiers créés : index.html, styles.css, main.js, src/ui/renderer.js, src/ui/input.js
+- Fichiers non modifiés : src/core/piece.js, grid.js, game.js (l'agent n'a pas touché à la logique, il a seulement ajouté l'interface)
+- Lancement : (Live Preview / python -m http.server), car les modules ES ne se chargent pas depuis un fichier local
+- Test manuel : les pièces tombent en couleur, les flèches gauche/droite les déplacent, la flèche haut les fait tourner, la flèche bas les fait descendre, les pièces s'empilent. Le jeu marche.
+- Gardé / annulé : gardé
+- Itérations : 1
