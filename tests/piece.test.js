@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { rotate } from '../src/core/piece.js';
+import { PIECE_COLORS, PIECES, rotate } from '../src/core/piece.js';
 
 describe('rotate', () => {
   it('fait pivoter une matrice 2x2 dans le sens horaire', () => {
@@ -29,5 +29,13 @@ describe('rotate', () => {
       [1, 2, 3],
       [4, 5],
     ])).toThrow('La matrice doit être carrée.');
+  });
+});
+
+describe('pièces', () => {
+  it('définit une couleur pour chaque tétromino', () => {
+    expect(Object.keys(PIECES)).toEqual(['I', 'O', 'T', 'S', 'Z', 'J', 'L']);
+    expect(Object.keys(PIECE_COLORS)).toEqual(Object.keys(PIECES));
+    expect(Object.values(PIECE_COLORS).every(color => /^#[0-9a-f]{6}$/i.test(color))).toBe(true);
   });
 });
