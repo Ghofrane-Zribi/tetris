@@ -3,12 +3,16 @@ import { createRenderer } from './src/ui/renderer.js';
 import { bindInput } from './src/ui/input.js';
 
 const canvas = document.querySelector('#game-canvas');
+const previewCanvas = document.querySelector('#next-piece-canvas');
 if (!(canvas instanceof HTMLCanvasElement)) {
   throw new Error('Le canvas du jeu est introuvable.');
 }
+if (!(previewCanvas instanceof HTMLCanvasElement)) {
+  throw new Error('Le canvas de la pièce suivante est introuvable.');
+}
 
 const game = createGame();
-const renderer = createRenderer(canvas);
+const renderer = createRenderer(canvas, previewCanvas);
 const scoreElement = document.querySelector('#score');
 const levelElement = document.querySelector('#level');
 const linesElement = document.querySelector('#lines');
@@ -22,12 +26,13 @@ function render(state) {
   scoreElement.textContent = String(state.score);
   levelElement.textContent = String(state.level);
   linesElement.textContent = String(state.lines);
-  statusElement.textContent = {
+  const statusText = {
     ready: 'Prêt',
     playing: 'En cours',
     paused: 'Pause',
-    'game-over': 'Game Over',
-  }[state.status];
+    'game-over': `Game Over — score final : ${state.score}`,
+  };
+  statusElement.textContent = statusText[state.status];
   pauseButton.textContent = state.status === 'paused' ? 'Reprendre' : 'Pause';
 }
 

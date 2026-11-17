@@ -24,7 +24,7 @@ body {
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 h1 {
@@ -41,8 +41,29 @@ h1 {
 }
 
 .sidebar {
-  min-width: 130px;
+  display: flex;
+  min-width: 150px;
+  flex-direction: column;
   text-align: left;
+}
+
+.next-piece {
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.next-piece h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+#next-piece-canvas {
+  display: block;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
+  border: 2px solid #737373;
+  image-rendering: pixelated;
 }
 
 .sidebar p {
@@ -84,5 +105,6 @@ kbd {
 
   .sidebar {
     width: min(60vw, 300px);
+    min-width: 0;
   }
 }

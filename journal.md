@@ -84,3 +84,11 @@
 - Test manuel : le score augmente quand une ligne disparaît (1 ligne = 100, 2 lignes = 300) ; niveau 2 après 10 lignes ; Start, Pause, Restart et la touche P marchent
 - Gardé / annulé : gardé
 - Itérations : 1
+
+### Requête 6 – Agent, étape 5 du plan
+- Prompt : « réalise l'étape 5 de #file:docs/PLAN.md »
+- Fichiers modifiés : renderer.js, index.html, main.js, styles.css, game.js 
+- Commandes exécutées : npm test → 16 tests réussis
+- Test manuel : pièce suivante affichée, animation des lignes, panneau responsive, écran Game Over avec score final. Le jeu marche.
+- Gardé / annulé : gardé
+- Itérations : 1

@@ -76,6 +76,8 @@ export function createGame({
       lines: 0,
       level: 1,
       dropInterval: getDropInterval(1),
+      lastClearedRows: [],
+      clearAnimationId: 0,
     };
   }
 
@@ -136,6 +138,10 @@ export function createGame({
       state.current.column,
       state.current.color,
     );
+    const clearedRows = lockedGrid.reduce(
+      (rows, row, index) => (row.every(cell => cell !== null) ? [...rows, index] : rows),
+      [],
+    );
     const { grid, clearedLines } = clearCompletedLines(lockedGrid);
     const lines = state.lines + clearedLines;
     const level = getLevel(lines);
@@ -146,6 +152,8 @@ export function createGame({
       level,
       score: state.score + calculateScore(clearedLines, state.level),
       dropInterval: getDropInterval(level),
+      lastClearedRows: clearedRows,
+      clearAnimationId: state.clearAnimationId + (clearedLines > 0 ? 1 : 0),
     };
     return spawnNextPiece();
   }
