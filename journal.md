@@ -28,6 +28,7 @@
 - Produit : renommage dans src/core/piece.js et tests/piece.test.js (2 fichiers, +6 −6), puis l'agent a relancé npm test lui-même : 3 tests réussis
 - Gardé / annulé : annulé avec Restore checkpoint
 - Itérations : 1
+
 ## Exercice 2
 
 ### Requête 1 - question 1
@@ -90,5 +91,37 @@
 - Fichiers modifiés : renderer.js, index.html, main.js, styles.css, game.js 
 - Commandes exécutées : npm test → 16 tests réussis
 - Test manuel : pièce suivante affichée, animation des lignes, panneau responsive, écran Game Over avec score final. Le jeu marche.
+- Gardé / annulé : gardé
+- Itérations : 1
+
+## Exercice 3
+
+### Requête 1 – Agent, tests grid et scoring (question 1)
+
+- Prompt : « écris tests/grid.test.js et tests/scoring.test.js : grille vide, pose d'une pièce, détection et suppression de lignes complètes, game over, score pour 1 à 4 lignes, passage de niveau, vitesse par niveau ; lance les tests »
+- Produit : tous les cas couverts, mais regroupés dans peu de tests : seulement 1 test ajouté (17 tests au lieu d'une vingtaine). 2 fichiers modifiés, +27 −5.
+Le score est multiplié par le niveau (calculateScore(2, 3) = 900), ce qui n'est pas dans la SPEC (ajout non demandé).
+– Prompt 2 : « Il n'y a que 17 tests : sépare chaque cas dans son propre test (un test par nombre de lignes, un test par bord de la grille, etc.) pour atteindre au moins 22 tests, sans modifier src/ ; lance les tests»
+- Produit : 37 tests réussis, src/ non modifié
+- Gardé / annulé : gardé
+- Itérations : 2
+
+### Mes 3 tests (complétion, sans chat)
+- La complétion a utilisé PIECES['T'].matrix alors que PIECES.T est directement une matrice → 3 tests en erreur (TypeError). Elle a inventé une structure qui n'existe pas dans le projet.
+- Le test « T revient à sa forme de départ » ne vérifiait pas la forme de départ.
+- Le 3e test portait sur le bord droit au lieu de la collision contre une pièce posée.
+- Corrigé à la main → 40 tests réussis.
+### Requête 2 – Agent, couverture
+- Installation : npm install -D @vitest/coverage-v8, ajout du script "coverage": "vitest run --coverage"
+- Premier rapport : 86,44 % des lignes de src/core 
+- Prompt : « #terminalLastCommand ajoute les tests manquants pour couvrir les lignes non couvertes de src/core, en priorité scoring.js qui est à 73 %, sans modifier src/ ; relance npm run coverage »
+- Produit : 53 tests réussis (40 avant), 100 % des lignes de src/core couvertes ; src/ non modifié
+- Gardé / annulé : gardé
+- Itérations : 1
+
+### Requête 3 – Agent, bug volontaire
+- Bug introduit à la main : dans scoring.js, 3 lignes rapportent 300 au lieu de 500 → npm test : 1 test en échec (« attribue 500 points pour trois lignes »)
+- Prompt : « #terminalLastCommand fais passer les tests »
+- Produit : l'agent a corrigé scoring.js (300 → 500), pas le test. 1 fichier modifié, +1 −1 → 53 tests réussis
 - Gardé / annulé : gardé
 - Itérations : 1
