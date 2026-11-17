@@ -7,6 +7,17 @@ const ACTIONS = {
 
 export function bindInput(element, game, render) {
   function handleKeyDown(event) {
+    if (event.key.toLowerCase() === 'p') {
+      event.preventDefault();
+      if (game.getState().status === 'playing') {
+        game.pause();
+      } else {
+        game.start();
+      }
+      render(game.getState());
+      return;
+    }
+
     const action = ACTIONS[event.key];
     if (!action) {
       return;

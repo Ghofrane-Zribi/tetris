@@ -16,8 +16,15 @@ body {
 }
 
 .game {
-  width: min(94vw, 320px);
+  width: min(94vw, 620px);
   text-align: center;
+}
+
+.game-layout {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1rem;
 }
 
 h1 {
@@ -26,11 +33,34 @@ h1 {
 
 #game-canvas {
   display: block;
-  width: 100%;
+  width: min(60vw, 300px);
   height: auto;
   border: 2px solid #737373;
   background: #262626;
   image-rendering: pixelated;
+}
+
+.sidebar {
+  min-width: 130px;
+  text-align: left;
+}
+
+.sidebar p {
+  margin: 0 0 0.75rem;
+}
+
+.sidebar strong {
+  float: right;
+}
+
+.buttons {
+  display: grid;
+  gap: 0.5rem;
+}
+
+button {
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
 }
 
 .controls {
@@ -44,4 +74,15 @@ kbd {
   border: 1px solid #737373;
   border-radius: 0.25rem;
   background: #404040;
+}
+
+@media (max-width: 480px) {
+  .game-layout {
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: min(60vw, 300px);
+  }
 }

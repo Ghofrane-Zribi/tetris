@@ -7,6 +7,7 @@ import {
   GRID_WIDTH,
 } from './grid.js';
 import { PIECE_COLORS, PIECES, rotate } from './piece.js';
+import { calculateScore, getDropInterval, getLevel } from './scoring.js';
 
 const PIECE_TYPES = Object.keys(PIECES);
 
@@ -64,13 +65,21 @@ export function createGame({
     throw new Error('La grille initiale doit mesurer 10x20.');
   }
 
-  let state = {
-    grid: cloneGrid(initialGrid),
-    current: createRandomPiece(rng),
-    next: createRandomPiece(rng),
-    status: 'playing',
-    gameOver: false,
-  };
+  function createInitialState() {
+    return {
+      grid: cloneGrid(initialGrid),
+      current: createRandomPiece(rng),
+      next: createRandomPiece(rng),
+      status: 'ready',
+      gameOver: false,
+      score: 0,
+      lines: 0,
+      level: 1,
+      dropInterval: getDropInterval(1),
+    };
+  }
+
+  let state = createInitialState();
 
   function getState() {
     return {
@@ -127,8 +136,17 @@ export function createGame({
       state.current.column,
       state.current.color,
     );
-    const { grid } = clearCompletedLines(lockedGrid);
-    state = { ...state, grid };
+    const { grid, clearedLines } = clearCompletedLines(lockedGrid);
+    const lines = state.lines + clearedLines;
+    const level = getLevel(lines);
+    state = {
+      ...state,
+      grid,
+      lines,
+      level,
+      score: state.score + calculateScore(clearedLines, state.level),
+      dropInterval: getDropInterval(level),
+    };
     return spawnNextPiece();
   }
 
@@ -156,6 +174,28 @@ export function createGame({
     return true;
   }
 
+  function start() {
+    if (state.status === 'ready' || state.status === 'paused') {
+      state = { ...state, status: 'playing' };
+      return true;
+    }
+    return false;
+  }
+
+  function pause() {
+    if (state.status !== 'playing') {
+      return false;
+    }
+
+    state = { ...state, status: 'paused' };
+    return true;
+  }
+
+  function restart() {
+    state = createInitialState();
+    return true;
+  }
+
   return {
     getState,
     moveLeft,
@@ -163,5 +203,8 @@ export function createGame({
     rotate: rotateCurrent,
     drop,
     hardDrop,
+    start,
+    pause,
+    restart,
   };
 }

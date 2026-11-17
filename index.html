@@ -9,10 +9,24 @@
   <body>
     <main class="game">
       <h1>Tetris</h1>
-      <canvas id="game-canvas" aria-label="Plateau de jeu Tetris"></canvas>
+      <div class="game-layout">
+        <canvas id="game-canvas" aria-label="Plateau de jeu Tetris"></canvas>
+        <aside class="sidebar" aria-label="Informations de la partie">
+          <p>Score <strong id="score">0</strong></p>
+          <p>Niveau <strong id="level">1</strong></p>
+          <p>Lignes <strong id="lines">0</strong></p>
+          <p id="status">Prêt</p>
+          <div class="buttons">
+            <button id="start-button" type="button">Start</button>
+            <button id="pause-button" type="button">Pause</button>
+            <button id="restart-button" type="button">Restart</button>
+          </div>
+        </aside>
+      </div>
       <p class="controls">
         Utilisez les flèches gauche/droite pour déplacer la pièce,
-        <kbd>↑</kbd> pour la tourner et <kbd>↓</kbd> pour accélérer sa chute.
+        <kbd>↑</kbd> pour la tourner, <kbd>↓</kbd> pour accélérer sa chute et
+        <kbd>P</kbd> pour mettre en pause.
       </p>
     </main>
     <script type="module" src="./main.js"></script>

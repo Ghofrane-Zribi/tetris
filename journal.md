@@ -76,3 +76,11 @@
 - Test manuel : les pièces tombent en couleur, les flèches gauche/droite les déplacent, la flèche haut les fait tourner, la flèche bas les fait descendre, les pièces s'empilent. Le jeu marche.
 - Gardé / annulé : gardé
 - Itérations : 1
+
+### Requête 5 – Agent, étape 4 du plan
+- Prompt : « réalise l'étape 4 de #file:docs/PLAN.md »
+- Fichiers créés / modifiés : src/core/scoring.js (score, niveaux, vitesse), game.js (états Start/Pause/Restart, score, lignes, niveau), input.js (touche P), index.html, main.js, styles.css, tests scoring.test.js et game.test.js
+- Commandes exécutées : npm test → 16 tests réussis
+- Test manuel : le score augmente quand une ligne disparaît (1 ligne = 100, 2 lignes = 300) ; niveau 2 après 10 lignes ; Start, Pause, Restart et la touche P marchent
+- Gardé / annulé : gardé
+- Itérations : 1

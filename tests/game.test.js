@@ -18,6 +18,7 @@ describe('partie', () => {
 
   it('déplace et fait tourner la pièce courante si la position est valide', () => {
     const game = createGame({ rng: () => 0 });
+    game.start();
     const initialState = game.getState();
 
     expect(game.moveLeft()).toBe(true);
@@ -34,6 +35,7 @@ describe('partie', () => {
 
   it('fait descendre la pièce puis la fixe et fait apparaître la suivante', () => {
     const game = createGame({ rng: createSequenceRng([0, 0.5, 0.99]) });
+    game.start();
     const initialState = game.getState();
 
     expect(game.drop()).toBe(true);
@@ -52,11 +54,31 @@ describe('partie', () => {
     initialGrid[1][5] = '#ffffff';
     initialGrid[1][6] = '#ffffff';
     const game = createGame({ rng: () => 0, initialGrid });
+    game.start();
 
     game.hardDrop();
 
     expect(game.getState().status).toBe('game-over');
     expect(game.getState().gameOver).toBe(true);
     expect(game.moveLeft()).toBe(false);
+  });
+
+  it('gère les transitions Start, Pause et Restart', () => {
+    const game = createGame({ rng: () => 0 });
+
+    expect(game.getState().status).toBe('ready');
+    expect(game.start()).toBe(true);
+    expect(game.getState().status).toBe('playing');
+    expect(game.pause()).toBe(true);
+    expect(game.getState().status).toBe('paused');
+    expect(game.start()).toBe(true);
+    expect(game.getState().status).toBe('playing');
+    game.restart();
+    expect(game.getState()).toMatchObject({
+      status: 'ready',
+      score: 0,
+      lines: 0,
+      level: 1,
+    });
   });
 });
