@@ -7,31 +7,60 @@
     <link rel="stylesheet" href="./styles.css">
   </head>
   <body>
-    <main class="game">
+    <main class="game" id="app">
       <h1>Tetris</h1>
-      <div class="game-layout">
-        <canvas id="game-canvas" aria-label="Plateau de jeu Tetris"></canvas>
-        <aside class="sidebar" aria-label="Informations de la partie">
-          <div class="next-piece">
-            <h2>Pièce suivante</h2>
-            <canvas id="next-piece-canvas" aria-label="Pièce suivante"></canvas>
+      <section id="mode-screen" class="mode-screen" aria-labelledby="mode-title">
+        <h2 id="mode-title">Choisissez le mode de jeu</h2>
+        <form id="mode-form">
+          <label for="pseudo">Votre pseudo</label>
+          <input id="pseudo" name="pseudo" value="Joueur" maxlength="20" required>
+          <fieldset>
+            <legend>Mode</legend>
+            <label><input type="radio" name="mode" value="solo" checked> Solo</label>
+            <label><input type="radio" name="mode" value="versus-1"> VS 1 adversaire</label>
+            <label><input type="radio" name="mode" value="versus-2"> VS 2 adversaires</label>
+            <label><input type="radio" name="mode" value="versus-3"> VS 3 adversaires</label>
+          </fieldset>
+          <button type="submit">Lancer la partie</button>
+        </form>
+      </section>
+
+      <section id="game-screen" hidden>
+        <section id="players-board" class="players-board" aria-label="Parties">
+        <div class="game-layout player-panel">
+          <div class="human-game">
+            <h2 id="human-pseudo">Joueur</h2>
+            <canvas id="game-canvas" aria-label="Plateau de jeu Tetris"></canvas>
+            <p class="controls">
+              Utilisez les flèches gauche/droite pour déplacer la pièce,
+              <kbd>↑</kbd> pour la tourner, <kbd>↓</kbd> pour accélérer sa chute et
+              <kbd>P</kbd> pour mettre en pause.
+            </p>
           </div>
-          <p>Score <strong id="score">0</strong></p>
-          <p>Niveau <strong id="level">1</strong></p>
-          <p>Lignes <strong id="lines">0</strong></p>
-          <p id="status">Prêt</p>
-          <div class="buttons">
-            <button id="start-button" type="button">Start</button>
-            <button id="pause-button" type="button">Pause</button>
-            <button id="restart-button" type="button">Restart</button>
-          </div>
-        </aside>
-      </div>
-      <p class="controls">
-        Utilisez les flèches gauche/droite pour déplacer la pièce,
-        <kbd>↑</kbd> pour la tourner, <kbd>↓</kbd> pour accélérer sa chute et
-        <kbd>P</kbd> pour mettre en pause.
-      </p>
+          <aside class="sidebar" aria-label="Informations de la partie">
+            <div class="next-piece">
+              <h2>Pièce suivante</h2>
+              <canvas id="next-piece-canvas" aria-label="Pièce suivante"></canvas>
+            </div>
+            <p>Score <strong class="player-score" id="score">0</strong></p>
+            <p>Niveau <strong class="player-level" id="level">1</strong></p>
+            <p>Lignes <strong class="player-lines" id="lines">0</strong></p>
+            <p class="player-status" id="status">Prêt</p>
+            <div class="buttons">
+              <button id="start-button" type="button">Start</button>
+              <button id="pause-button" type="button">Pause</button>
+              <button id="restart-button" type="button">Restart</button>
+            </div>
+          </aside>
+        </div>
+        <div id="opponents" class="opponents" aria-label="Grilles des adversaires"></div>
+        </section>
+        <section id="results" class="results" hidden aria-labelledby="results-title">
+          <h2 id="results-title">Classement final</h2>
+          <p id="winner"></p>
+          <ol id="podium"></ol>
+        </section>
+      </section>
     </main>
     <script type="module" src="./main.js"></script>
   </body>

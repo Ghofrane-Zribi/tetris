@@ -20,6 +20,50 @@ body {
   text-align: center;
 }
 
+.mode-screen {
+  margin: 2rem auto;
+  padding: 1.5rem;
+  border: 1px solid #525252;
+  border-radius: 0.5rem;
+  background: #262626;
+}
+
+#mode-form {
+  display: grid;
+  gap: 1rem;
+  text-align: left;
+}
+
+#pseudo {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #737373;
+  border-radius: 0.25rem;
+  background: #171717;
+  color: inherit;
+}
+
+fieldset {
+  display: grid;
+  gap: 0.5rem;
+  border-color: #525252;
+}
+
+.human-game {
+  width: min(60vw, 300px);
+}
+
+.players-board {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.players-board--solo {
+  grid-template-columns: 1fr;
+}
+
 .game-layout {
   display: flex;
   align-items: flex-start;
@@ -33,11 +77,88 @@ h1 {
 
 #game-canvas {
   display: block;
-  width: min(60vw, 300px);
+  width: 100%;
   height: auto;
   border: 2px solid #737373;
   background: #262626;
   image-rendering: pixelated;
+}
+
+.opponents {
+  display: contents;
+}
+
+.opponent-card {
+  padding: 1rem;
+  border: 1px solid #525252;
+  border-radius: 0.5rem;
+  background: #262626;
+  min-width: 0;
+  text-align: center;
+}
+
+.players-board:not(.players-board--solo) .game-layout {
+  display: block;
+  padding: 1rem;
+  border: 1px solid #525252;
+  border-radius: 0.5rem;
+  background: #262626;
+}
+
+.players-board:not(.players-board--solo) .human-game {
+  width: 100%;
+}
+
+.players-board:not(.players-board--solo) .sidebar {
+  width: 100%;
+  min-width: 0;
+  margin-top: 1rem;
+}
+
+.opponent-card h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.opponent-canvas {
+  width: min(100%, 300px);
+  height: auto;
+  border: 2px solid #525252;
+  background: #262626;
+  image-rendering: pixelated;
+}
+
+.opponent-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  text-align: left;
+}
+
+.opponent-stats p {
+  margin: 0;
+}
+
+.opponent-stats .player-status {
+  grid-column: 1 / -1;
+}
+
+.results {
+  margin-top: 1.5rem;
+  padding: 1rem 1.5rem;
+  border: 1px solid #737373;
+  border-radius: 0.5rem;
+  background: #262626;
+  text-align: left;
+}
+
+.results h2 {
+  margin-top: 0;
+}
+
+.results ol {
+  margin-bottom: 0;
 }
 
 .sidebar {
@@ -98,6 +219,10 @@ kbd {
 }
 
 @media (max-width: 480px) {
+  .players-board {
+    grid-template-columns: 1fr;
+  }
+
   .game-layout {
     align-items: center;
     flex-direction: column;
@@ -106,5 +231,13 @@ kbd {
   .sidebar {
     width: min(60vw, 300px);
     min-width: 0;
+  }
+
+  .human-game {
+    width: min(60vw, 300px);
+  }
+
+  .opponents {
+    grid-template-columns: 1fr;
   }
 }

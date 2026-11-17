@@ -3,6 +3,31 @@ import { GRID_HEIGHT, GRID_WIDTH } from '../core/grid.js';
 const DEFAULT_CELL_SIZE = 30;
 const CLEAR_ANIMATION_DURATION = 260;
 
+const STATUS_LABELS = {
+  ready: 'Prêt',
+  playing: 'En cours',
+  paused: 'Pause',
+  'game-over': 'Game Over',
+};
+
+export function renderPlayerInfo(container, state) {
+  const scoreElement = container.querySelector('.player-score');
+  const levelElement = container.querySelector('.player-level');
+  const linesElement = container.querySelector('.player-lines');
+  const statusElement = container.querySelector('.player-status');
+
+  if (!scoreElement || !levelElement || !linesElement || !statusElement) {
+    throw new Error('Le panneau joueur est incomplet.');
+  }
+
+  scoreElement.textContent = String(state.score);
+  levelElement.textContent = String(state.level);
+  linesElement.textContent = String(state.lines);
+  statusElement.textContent = state.status === 'game-over'
+    ? `Game Over — score final : ${state.score}`
+    : STATUS_LABELS[state.status];
+}
+
 export function createRenderer(canvas, previewCanvasOrCellSize, cellSize = DEFAULT_CELL_SIZE) {
   const previewCanvas =
     typeof previewCanvasOrCellSize === 'number' ? undefined : previewCanvasOrCellSize;

@@ -22,6 +22,9 @@ export function bindInput(element, game, render) {
     if (!action) {
       return;
     }
+    if (game.getState().status === 'game-over') {
+      return;
+    }
 
     event.preventDefault();
     game[action]();

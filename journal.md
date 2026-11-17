@@ -125,3 +125,57 @@ Le score est multiplié par le niveau (calculateScore(2, 3) = 900), ce qui n'est
 - Produit : l'agent a corrigé scoring.js (300 → 500), pas le test. 1 fichier modifié, +1 −1 → 53 tests réussis
 - Gardé / annulé : gardé
 - Itérations : 1
+
+## Exercice 4
+
+### Requête 1 – Chat, mode Ask (plan)
+- Prompt : « #codebase propose un plan en étapes, sans coder : introduis une classe GameInstance (une partie : grille, pièce courante, score, état) et un GameManager (plusieurs instances, tour de jeu, fin de partie, gagnant = dernier en vie, podium). Écran de choix du mode : Solo, VS 1, 2 ou 3 adversaires. Grilles affichées côte à côte (2x2 au maximum) avec pseudo, score et niveau. Le mode solo doit rester identique. »
+- Produit : plan en 8 étapes (GameInstance, createGame conservé pour le solo, GameManager, tests, écran de choix, rendu multi-grilles, entrées, validation). Copilot pose une question : multijoueur simultané ou par tours ?
+- Itération 2 – Prompt : « Corrige le plan, sans coder :
+- un seul joueur humain, avec les touches actuelles ; les adversaires seront des IA à l'exercice suivant, pour l'instant leurs grilles s'affichent mais ils ne jouent pas ; pas de touches par joueur ;
+- le fichier de tests du manager s'appelle tests/gameManager.test.js (création solo, création à quatre, désignation du gagnant, réinitialisation) ;
+- regroupe en 5 étapes, chacune terminée par npm test. »
+- Produit : plan corrigé en 5 étapes (GameInstance + createGame conservé / GameManager + tests / écran de choix / grilles côte à côte / boucle de jeu et gagnant) ; adversaires inactifs jusqu'à l'exercice 5
+- Gardé : plan sauvegardé dans docs/PLAN-VS.md
+- Itérations : 2
+### Requête 2 – Agent, étape 1 du plan
+- Prompt : « réalise l'étape 1 de #file:docs/PLAN-VS.md »
+- Fichiers créés / modifiés : src/core/gameInstance.js (créé : classe GameInstance avec la logique d'une partie + pseudo), src/core/game.js (devient une façade : createGame() crée une GameInstance), tests/gameInstance.test.js (créé : pseudo et restart)
+- npm test : 55 tests réussis 
+- Test manuel : mode solo identique 
+- Gardé / annulé : gardé
+- Itérations : 1
+
+### Requête 3 – Agent, étape 2 du plan
+- Prompt : « réalise l'étape 2 de #file:docs/PLAN-VS.md »
+- Fichiers créés : src/core/gameManager.js (modes Solo à VS 3, joueur humain en premier, adversaires inactifs, gagnant = dernier vivant, podium, réinitialisation), tests/gameManager.test.js (création solo, création à quatre, gagnant, réinitialisation)
+- npm test : 59 tests réussis 
+- Test manuel : mode solo identique
+- Gardé / annulé : gardé
+- Itérations : 1
+
+### Requête 4 – Agent, étape 3 du plan
+- Prompt : « réalise l'étape 3 de #file:docs/PLAN-VS.md »
+- Fichiers modifiés : index.html (écran de choix : pseudo, Solo, VS 1, 2 ou 3 adversaires, bouton « Lancer la partie »), main.js (crée un GameManager selon le mode choisi), styles.css (styles de l'écran de choix et des grilles adverses)
+- npm test : 59 tests réussis,
+- Test manuel : l'écran de choix s'affiche ; le mode Solo se joue comme avant ; en mode VS, les grilles adverses s'affichent sans bouger
+- Gardé / annulé : gardé
+- Itérations : 1
+
+### Requête 5 – Agent, étape 4 du plan
+- Prompt : « réalise l'étape 4 de #file:docs/PLAN-VS.md »
+- Fichiers modifiés : src/ui/renderer.js, index.html, main.js, styles.css
+- npm test : 59 tests réussis
+- Test manuel : en VS 1, la grille du joueur était beaucoup plus petite que celle de l'adversaire
+- Itération 2 – Prompt : « En VS 1, la grille du joueur humain est beaucoup plus petite que celle de l'adversaire, et le texte des commandes est écrasé dans une colonne étroite. Toutes les grilles doivent avoir la même taille ; le panneau du joueur (pièce suivante, score, boutons) ne doit pas réduire sa grille. Vérifie aussi en VS 3 (2x2) et en Solo.»
+- Produit : toutes les grilles ont la même taille ; VS 1 = 2 grilles côte à côte, VS 2 = 2 + 1 en dessous, VS 3 = 2x2 ; pseudo, score, niveau et lignes sous chaque grille adverse
+- Gardé / annulé : gardé
+- Itérations : 2
+
+### Requête 6 – Agent, étape 5 du plan
+- Prompt : « réalise l'étape 5 de #file:docs/PLAN-VS.md »
+- Fichiers modifiés : src/core/gameManager.js, src/ui/input.js, index.html, main.js, styles.css, tests/gameManager.test.js
+- npm test : 59 tests réussis
+- Test manuel : en VS 1, le joueur joue et l'adversaire reste immobile ; score et niveau évoluent ; après mon Game Over, le panneau « Gagnant » s'affiche : Adversaire 1 gagne avec 0 point (dernier en vie), puis Joueur 2e avec 2200 points
+- Gardé / annulé : gardé
+- Itérations : 1
