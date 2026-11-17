@@ -179,3 +179,39 @@ Le score est multiplié par le niveau (calculateScore(2, 3) = 900), ce qui n'est
 - Test manuel : en VS 1, le joueur joue et l'adversaire reste immobile ; score et niveau évoluent ; après mon Game Over, le panneau « Gagnant » s'affiche : Adversaire 1 gagne avec 0 point (dernier en vie), puis Joueur 2e avec 2200 points
 - Gardé / annulé : gardé
 - Itérations : 1
+
+## Exercice 5
+
+### Requête 1 – Agent, joueurs IA
+- Prompt : « réalise #file:docs/SPEC-IA.md ; propose d'abord un plan, puis implémente-le ; lance npm test »
+- Produit : plan en 5 points annoncé, puis implémentation sans attendre ma validation
+- Fichiers créés / modifiés : src/core/ai.js, src/core/gameManager.js , main.js, index.html, styles.css, renderer.js, tests/ai.test.js
+- Correction : après un premier npm test en échec, l'agent a modifié le code (pas les tests) pour que l'expert puisse décider même sans pièce suivante
+- npm test : 65 tests réussis
+- Test manuel : en VS 3, les 3 niveaux sont affichés sous les pseudos (Débutant, Intermédiaire, Expert) et jouent tous ; après quelques minutes : débutant 0 ligne (tour au hasard au milieu), intermédiaire 4 lignes (grille basse et plate), expert 8 lignes. Les IA continuent après mon Game Over. L'IA est plus lente que la chute normale.
+- Gardé / annulé : gardé
+- Itérations : 1
+
+### Requête 2 – Agent, tests de l'IA
+- Prompt : « complète tests/ai.test.js : fonctions d'évaluation sur des grilles construites à la main (trous, irrégularité, hauteur), choix de la meilleure position dans un cas évident, et « l'IA ne triche pas » : chaque décision est jouable par les fonctions publiques de GameInstance ; ne modifie pas src/ ; lance les tests »
+- Fichier modifié : tests/ai.test.js uniquement
+- Remarque : avant d'écrire les tests, l'agent a lancé plusieurs scripts node pour observer ce que l'IA décide. Certaines valeurs attendues viennent donc du comportement du code et non d'un calcul indépendant.
+- npm test : 70 tests réussis
+- Gardé / annulé : gardé
+- Itérations : 1
+
+### Requête 3 – Agent, simulation
+- Prompt : « écris scripts/simulate.js qui joue 20 parties sans affichage par niveau d'IA, avec une graine fixe, et affiche le nombre moyen de lignes complétées par niveau ; lance node scripts/simulate.js »
+- Fichier créé : scripts/simulate.js (RNG à graine fixe, 20 parties par niveau, décisions jouées via les fonctions publiques de GameInstance, sans DOM, limite de pièces par partie ajoutée par l'agent)
+- Résultat : débutant 0,00 ligne, intermédiaire 3,55 lignes, expert 6,90 lignes en moyenne → l'expert fait nettement mieux que le débutant
+- Gardé / annulé : gardé
+- Itérations : 1
+
+### Requête 4 – Agent, variation des pondérations
+- Prompt : « avec scripts/simulate.js, fais varier une par une les 4 pondérations de l'expert en les mettant à 0 puis en les doublant… remets les valeurs d'origine à la fin »
+- Fichiers modifiés : src/core/ai.js, scripts/simulate.js
+- Résultat : hauteur 0 → 15,85 / ×2 → 5,60 ; lignes 0 → 4,75 / ×2 → 4,85 ; trous 0 → 14,75 / ×2 → 4,90 ; irrégularité 0 → 2,25 / ×2 → 16,80 (référence : 6,90)
+- npm test : 70 tests réussis
+- Remarque : l'agent a modifié le code de production (ai.js) pour l'expérience, pas seulement le script
+- Gardé / annulé : gardé
+- Itérations : 1

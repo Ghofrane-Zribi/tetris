@@ -72,6 +72,9 @@ function createOpponentViews(state) {
     card.className = 'opponent-card player-panel';
     const title = document.createElement('h2');
     title.textContent = player.pseudo;
+    const aiLevel = document.createElement('p');
+    aiLevel.className = 'ai-level';
+    aiLevel.textContent = `IA — ${player.aiLevelLabel}`;
     const opponentCanvas = document.createElement('canvas');
     opponentCanvas.className = 'opponent-canvas';
     opponentCanvas.setAttribute('aria-label', `Grille de ${player.pseudo}`);
@@ -83,7 +86,7 @@ function createOpponentViews(state) {
       <p>Lignes <strong class="player-lines">0</strong></p>
       <p class="player-status">Prêt</p>
     `;
-    card.append(title, opponentCanvas, stats);
+    card.append(title, aiLevel, opponentCanvas, stats);
     opponentContainer.append(card);
     opponentRenderers.push({
       card,
@@ -130,14 +133,22 @@ restartButton.addEventListener('click', () => {
 let elapsed = 0;
 let lastTimestamp = performance.now();
 function tick(timestamp) {
-  elapsed += timestamp - lastTimestamp;
+  const deltaTime = timestamp - lastTimestamp;
+  elapsed += deltaTime;
   lastTimestamp = timestamp;
   if (manager) {
     const state = manager.getState();
     const human = state.players[state.humanIndex];
+    let changed = false;
     if (state.status === 'playing' && elapsed >= human.dropInterval) {
       manager.drop();
       elapsed = 0;
+      changed = true;
+    }
+    if (manager.tick(deltaTime)) {
+      changed = true;
+    }
+    if (changed) {
       render();
     }
   }

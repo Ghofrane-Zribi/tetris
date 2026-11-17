@@ -1,5 +1,6 @@
 import { createGrid } from './grid.js';
 import { GameInstance } from './gameInstance.js';
+import { AI_LEVELS, AIPlayer } from './ai.js';
 
 const PLAYER_COUNTS = {
   solo: 1,
@@ -24,11 +25,16 @@ export class GameManager {
     pseudo = 'Joueur',
     pseudos,
     rng = Math.random,
+    aiRng = Math.random,
+    aiLevels,
     initialGrids,
   } = {}) {
     validateMode(mode);
     if (typeof rng !== 'function') {
       throw new Error('Le générateur aléatoire doit être une fonction.');
+    }
+    if (typeof aiRng !== 'function') {
+      throw new Error('Le générateur aléatoire de l’IA doit être une fonction.');
     }
 
     const playerCount = PLAYER_COUNTS[mode];
@@ -53,12 +59,19 @@ export class GameManager {
     this.mode = mode;
     this.humanIndex = 0;
     this.rng = rng;
+    this.aiRng = aiRng;
     this.initialGrids = initialGrids?.map(cloneInitialGrid);
     this.instances = names.map((name, index) => new GameInstance({
       pseudo: name,
       rng,
       initialGrid: this.initialGrids?.[index] ?? createGrid(),
     }));
+    this.aiPlayers = names.slice(1).map((_, index) => {
+      const level = aiLevels?.[index] ?? ['beginner', 'intermediate', 'expert'][index] ?? 'expert';
+      return new AIPlayer({ level, rng: aiRng });
+    });
+    this.aiPlans = Array(this.instances.length).fill(null);
+    this.aiElapsed = Array(this.instances.length).fill(0);
     this.status = 'ready';
     this.eliminationOrder = [];
   }
@@ -84,7 +97,7 @@ export class GameManager {
     const humanState = this.getInstance(this.humanIndex).getState();
     const aliveCount = this.instances.filter(instance => !instance.getState().gameOver).length;
     if (
-      humanState.gameOver ||
+      (this.instances.length === 1 && humanState.gameOver) ||
       (this.eliminationOrder.length > 0 && aliveCount <= 1)
     ) {
       this.status = 'game-over';
@@ -107,12 +120,81 @@ export class GameManager {
 
   getPlayerSnapshot(index) {
     const state = this.getInstance(index).getState();
+    const ai = index > this.humanIndex ? this.aiPlayers[index - 1] : null;
     return {
       ...state,
       index,
       isHuman: index === this.humanIndex,
       alive: !state.gameOver,
+      isAi: Boolean(ai),
+      aiLevel: ai?.level ?? null,
+      aiLevelLabel: ai ? AI_LEVELS[ai.level].label : null,
+      aiDelay: ai ? AI_LEVELS[ai.level].delay : null,
     };
+  }
+
+  playAiStep(index) {
+    const ai = this.aiPlayers[index - 1];
+    const instance = this.getInstance(index);
+    const state = instance.getState();
+    if (!ai || state.gameOver || state.status !== 'playing') {
+      return false;
+    }
+
+    let plan = this.aiPlans[index];
+    if (!plan || plan.pieceType !== state.current.type) {
+      const decision = ai.decide(state.grid, state.current, state.next);
+      plan = {
+        pieceType: state.current.type,
+        rotation: decision.rotation,
+        column: decision.column,
+      };
+      this.aiPlans[index] = plan;
+    }
+
+    if (plan.rotation > 0) {
+      if (!instance.rotate()) {
+        plan.rotation = 0;
+      } else {
+        plan.rotation--;
+      }
+      return true;
+    }
+
+    if (state.current.column < plan.column) {
+      return instance.moveRight();
+    }
+    if (state.current.column > plan.column) {
+      return instance.moveLeft();
+    }
+
+    const dropped = instance.drop();
+    if (!dropped) {
+      this.aiPlans[index] = null;
+    }
+    return true;
+  }
+
+  tick(deltaTime) {
+    if (this.status !== 'playing') {
+      return false;
+    }
+    if (!Number.isFinite(deltaTime) || deltaTime < 0) {
+      throw new Error('Le temps écoulé doit être un nombre positif ou nul.');
+    }
+
+    let changed = false;
+    this.aiPlayers.forEach((ai, offset) => {
+      const index = offset + 1;
+      this.aiElapsed[index] += deltaTime;
+      if (this.aiElapsed[index] < AI_LEVELS[ai.level].delay) {
+        return;
+      }
+      this.aiElapsed[index] = 0;
+      changed = this.playAiStep(index) || changed;
+    });
+    this.refreshResults();
+    return changed;
   }
 
   getPodium() {
@@ -145,7 +227,7 @@ export class GameManager {
       return false;
     }
 
-    const started = this.getInstance(this.humanIndex).start();
+    const started = this.instances.every(instance => instance.start());
     if (started) {
       this.status = 'playing';
     }
@@ -153,7 +235,9 @@ export class GameManager {
   }
 
   pause() {
-    const paused = this.getInstance(this.humanIndex).pause();
+    const paused = this.instances
+      .filter(instance => instance.getState().status === 'playing')
+      .every(instance => instance.pause());
     if (paused) {
       this.status = 'paused';
     }
@@ -164,6 +248,8 @@ export class GameManager {
     this.instances.forEach(instance => instance.restart());
     this.status = 'ready';
     this.eliminationOrder = [];
+    this.aiPlans.fill(null);
+    this.aiElapsed.fill(0);
     return true;
   }
 

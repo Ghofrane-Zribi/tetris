@@ -76,4 +76,22 @@ describe('GameManager', () => {
     ))).toBe(true);
     expect(state.podium).toHaveLength(2);
   });
+
+  it('démarre les IA et leur fait jouer un mouvement après leur délai', () => {
+    const manager = new GameManager({
+      mode: 'versus-1',
+      aiLevels: ['beginner'],
+      rng: () => 0,
+      aiRng: () => 0,
+    });
+
+    manager.start();
+    const before = manager.getState().players[1].current;
+    expect(manager.tick(299)).toBe(false);
+    expect(manager.getState().players[1].status).toBe('playing');
+    expect(manager.tick(1)).toBe(true);
+
+    const after = manager.getState().players[1].current;
+    expect(after.column).not.toBe(before.column);
+  });
 });
