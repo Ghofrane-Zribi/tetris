@@ -140,7 +140,20 @@ function scoreExpertWithNext(candidate, next) {
   return scoreExpert(candidate) + (next ? 0.1 * bestNextScore(candidate.grid, next) : 0);
 }
 
+/**
+ * Calcule les décisions de placement d’un adversaire IA.
+ * @class
+ * @throws {Error} Si le niveau ou le générateur aléatoire est invalide.
+ */
 export class AIPlayer {
+  /**
+   * Initialise un joueur IA.
+   * @param {Object} [options] Options du joueur.
+   * @param {'beginner'|'intermediate'|'expert'} [options.level='beginner'] Niveau de difficulté.
+   * @param {Function} [options.rng=Math.random] Générateur aléatoire injecté.
+   * @returns {AIPlayer} Joueur IA initialisé.
+   * @throws {Error} Si le niveau ou le générateur aléatoire est invalide.
+   */
   constructor({ level = 'beginner', rng = Math.random } = {}) {
     if (!Object.hasOwn(AI_LEVELS, level)) {
       throw new Error('Le niveau IA doit être débutant, intermédiaire ou expert.');
@@ -153,6 +166,14 @@ export class AIPlayer {
     this.rng = rng;
   }
 
+  /**
+   * Choisit une rotation et une colonne pour la pièce courante.
+   * @param {Array<Array<*>>} grid Grille courante.
+   * @param {Object} piece Pièce à placer.
+   * @param {Object|null} next Pièce suivante utilisée par l’expert.
+   * @returns {{rotation: number, column: number}} Décision de placement.
+   * @throws {Error} Si le générateur aléatoire produit une valeur invalide.
+   */
   decide(grid, piece, next) {
     const candidates = getCandidates(grid, piece);
     if (candidates.length === 0) {

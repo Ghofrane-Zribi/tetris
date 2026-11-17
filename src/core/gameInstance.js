@@ -50,7 +50,21 @@ function createRandomPiece(rng) {
   return createPiece(type);
 }
 
+/**
+ * Représente une partie individuelle et son état courant.
+ * @class
+ * @throws {Error} Si les options de construction sont invalides.
+ */
 export class GameInstance {
+  /**
+   * Initialise une partie.
+   * @param {Object} [options] Options de la partie.
+   * @param {Function} [options.rng=Math.random] Générateur aléatoire des pièces.
+   * @param {Array<Array<*>>} [options.initialGrid] Grille initiale de 10x20.
+   * @param {string} [options.pseudo='Joueur'] Pseudo du joueur.
+   * @returns {GameInstance} Partie initialisée.
+   * @throws {Error} Si le générateur, la grille ou le pseudo est invalide.
+   */
   constructor({
     rng = Math.random,
     initialGrid = createGrid(),
@@ -76,6 +90,11 @@ export class GameInstance {
     this.state = this.createInitialState();
   }
 
+  /**
+   * Construit l’état initial de la partie.
+   * @returns {Object} État initial avec grille et pièces.
+   * @throws {Error} Si le générateur aléatoire produit une valeur invalide.
+   */
   createInitialState() {
     return {
       pseudo: this.pseudo,
@@ -93,6 +112,11 @@ export class GameInstance {
     };
   }
 
+  /**
+   * Retourne une copie isolée de l’état courant.
+   * @returns {Object} État de la partie.
+   * @throws {Error} Si une copie de l’état ne peut pas être produite.
+   */
   getState() {
     return {
       ...this.state,
@@ -102,6 +126,12 @@ export class GameInstance {
     };
   }
 
+  /**
+   * Met à jour la pièce courante si sa nouvelle position est valide.
+   * @param {Object} changes Propriétés de pièce à modifier.
+   * @returns {boolean} Vrai si la mise à jour est appliquée.
+   * @throws {TypeError} Si les changements ne permettent pas de vérifier la position.
+   */
   updateCurrent(changes) {
     const candidate = { ...this.state.current, ...changes };
     if (
@@ -119,16 +149,31 @@ export class GameInstance {
     return true;
   }
 
+  /**
+   * Déplace la pièce courante vers la gauche.
+   * @returns {boolean} Vrai si le déplacement est effectué.
+   * @throws {TypeError} Si l’état courant est invalide.
+   */
   moveLeft() {
     return this.state.status === 'playing' &&
       this.updateCurrent({ column: this.state.current.column - 1 });
   }
 
+  /**
+   * Déplace la pièce courante vers la droite.
+   * @returns {boolean} Vrai si le déplacement est effectué.
+   * @throws {TypeError} Si l’état courant est invalide.
+   */
   moveRight() {
     return this.state.status === 'playing' &&
       this.updateCurrent({ column: this.state.current.column + 1 });
   }
 
+  /**
+   * Fait tourner la pièce courante dans le sens horaire.
+   * @returns {boolean} Vrai si la rotation est effectuée.
+   * @throws {Error} Si la rotation de la matrice est impossible.
+   */
   rotate() {
     if (this.state.status !== 'playing') {
       return false;
@@ -137,6 +182,11 @@ export class GameInstance {
     return this.updateCurrent({ matrix: rotate(this.state.current.matrix) });
   }
 
+  /**
+   * Fait apparaître la pièce suivante ; passe la partie en Game Over si elle ne peut pas apparaître.
+   * @returns {boolean} Vrai si la pièce suivante a pu apparaître, faux en cas de Game Over.
+   * @throws {Error} Si le générateur aléatoire produit une valeur invalide.
+   */
   spawnNextPiece() {
     const current = this.state.next;
     const next = createRandomPiece(this.rng);
@@ -149,6 +199,11 @@ export class GameInstance {
     return true;
   }
 
+  /**
+   * Fixe la pièce courante, met à jour le score et les lignes.
+   * @returns {boolean} Vrai si la prochaine pièce peut apparaître.
+   * @throws {Error} Si la pièce courante ne peut pas être fixée.
+   */
   lockCurrent() {
     const lockedGrid = lockPiece(
       this.state.grid,
@@ -177,6 +232,11 @@ export class GameInstance {
     return this.spawnNextPiece();
   }
 
+  /**
+   * Fait descendre la pièce d’une ligne ou la fixe.
+   * @returns {boolean} Vrai si la pièce descend, faux si elle est fixée.
+   * @throws {Error} Si la pièce courante ne peut pas être fixée.
+   */
   drop() {
     if (this.state.status !== 'playing') {
       return false;
@@ -189,6 +249,11 @@ export class GameInstance {
     return false;
   }
 
+  /**
+   * Fait descendre directement la pièce jusqu’au point de fixation.
+   * @returns {boolean} Vrai si la chute directe est traitée.
+   * @throws {Error} Si la pièce courante ne peut pas être fixée.
+   */
   hardDrop() {
     if (this.state.status !== 'playing') {
       return false;
@@ -201,6 +266,11 @@ export class GameInstance {
     return true;
   }
 
+  /**
+   * Démarre ou reprend la partie.
+   * @returns {boolean} Vrai si la partie passe à l’état « playing ».
+   * @throws {Error} Si l’état courant est invalide.
+   */
   start() {
     if (this.state.status === 'ready' || this.state.status === 'paused') {
       this.state = { ...this.state, status: 'playing' };
@@ -209,6 +279,11 @@ export class GameInstance {
     return false;
   }
 
+  /**
+   * Met la partie en pause.
+   * @returns {boolean} Vrai si la partie est mise en pause.
+   * @throws {Error} Si l’état courant est invalide.
+   */
   pause() {
     if (this.state.status !== 'playing') {
       return false;
@@ -218,6 +293,11 @@ export class GameInstance {
     return true;
   }
 
+  /**
+   * Réinitialise la partie avec sa configuration initiale.
+   * @returns {boolean} Toujours vrai après réinitialisation.
+   * @throws {Error} Si le générateur aléatoire produit une valeur invalide.
+   */
   restart() {
     this.state = this.createInitialState();
     return true;

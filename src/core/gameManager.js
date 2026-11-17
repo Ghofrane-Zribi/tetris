@@ -19,7 +19,25 @@ function cloneInitialGrid(grid) {
   return grid.map(row => [...row]);
 }
 
+/**
+ * Coordonne les parties humaine et IA d’un mode de jeu.
+ * @class
+ * @throws {Error} Si le mode, les générateurs ou les joueurs sont invalides.
+ */
 export class GameManager {
+  /**
+   * Initialise les instances d’un mode de jeu.
+   * @param {Object} [options] Options du manager.
+   * @param {string} [options.mode='solo'] Mode de jeu.
+   * @param {string} [options.pseudo='Joueur'] Pseudo du joueur humain.
+   * @param {Array<string>} [options.pseudos] Pseudos de tous les joueurs.
+   * @param {Function} [options.rng=Math.random] Générateur des pièces.
+   * @param {Function} [options.aiRng=Math.random] Générateur aléatoire des IA.
+   * @param {Array<string>} [options.aiLevels] Niveaux des adversaires IA.
+   * @param {Array<Array<Array<*>>>} [options.initialGrids] Grilles initiales.
+   * @returns {GameManager} Manager initialisé.
+   * @throws {Error} Si une option ou un joueur est invalide.
+   */
   constructor({
     mode = 'solo',
     pseudo = 'Joueur',
@@ -76,6 +94,12 @@ export class GameManager {
     this.eliminationOrder = [];
   }
 
+  /**
+   * Retourne une instance de joueur par son index.
+   * @param {number} index Index du joueur.
+   * @returns {GameInstance} Instance correspondante.
+   * @throws {Error} Si l’index est invalide.
+   */
   getInstance(index) {
     if (!Number.isInteger(index) || index < 0 || index >= this.instances.length) {
       throw new Error('L’index du joueur est invalide.');
@@ -84,10 +108,20 @@ export class GameManager {
     return this.instances[index];
   }
 
+  /**
+   * Retourne une copie de la liste des instances.
+   * @returns {Array<GameInstance>} Instances des joueurs.
+   * @throws {Error} Si la liste interne est invalide.
+   */
   getInstances() {
     return [...this.instances];
   }
 
+  /**
+   * Met à jour les éliminations et l’état de fin de partie.
+   * @returns {void} Ne retourne aucune valeur.
+   * @throws {Error} Si une instance de joueur est invalide.
+   */
   refreshResults() {
     this.instances.forEach((instance, index) => {
       if (instance.getState().gameOver && !this.eliminationOrder.includes(index)) {
@@ -104,6 +138,11 @@ export class GameManager {
     }
   }
 
+  /**
+   * Détermine le dernier joueur encore en vie.
+   * @returns {Object|null} Joueur gagnant, ou null si le résultat est indéterminé.
+   * @throws {Error} Si l’état d’une partie est invalide.
+   */
   getWinner() {
     this.refreshResults();
     const aliveIndexes = this.instances
@@ -118,6 +157,12 @@ export class GameManager {
     return this.getPlayerSnapshot(aliveIndexes[0]);
   }
 
+  /**
+   * Construit l’état public d’un joueur.
+   * @param {number} index Index du joueur.
+   * @returns {Object} État du joueur avec ses métadonnées.
+   * @throws {Error} Si l’index est invalide.
+   */
   getPlayerSnapshot(index) {
     const state = this.getInstance(index).getState();
     const ai = index > this.humanIndex ? this.aiPlayers[index - 1] : null;
@@ -133,6 +178,12 @@ export class GameManager {
     };
   }
 
+  /**
+   * Exécute une action élémentaire pour un joueur IA.
+   * @param {number} index Index du joueur IA.
+   * @returns {boolean} Vrai si une action a été exécutée.
+   * @throws {Error} Si l’index ou la décision IA est invalide.
+   */
   playAiStep(index) {
     const ai = this.aiPlayers[index - 1];
     const instance = this.getInstance(index);
@@ -162,10 +213,14 @@ export class GameManager {
     }
 
     if (state.current.column < plan.column) {
-      return instance.moveRight();
+      if (instance.moveRight()) {
+        return true;
+      }
     }
     if (state.current.column > plan.column) {
-      return instance.moveLeft();
+      if (instance.moveLeft()) {
+        return true;
+      }
     }
 
     const dropped = instance.drop();
@@ -175,6 +230,12 @@ export class GameManager {
     return true;
   }
 
+  /**
+   * Avance les joueurs IA selon le temps écoulé.
+   * @param {number} deltaTime Temps écoulé en millisecondes.
+   * @returns {boolean} Vrai si au moins une IA a joué.
+   * @throws {Error} Si le temps écoulé est invalide.
+   */
   tick(deltaTime) {
     if (this.status !== 'playing') {
       return false;
@@ -197,6 +258,11 @@ export class GameManager {
     return changed;
   }
 
+  /**
+   * Retourne le classement courant ou final.
+   * @returns {Array<Object>} Joueurs classés par position.
+   * @throws {Error} Si l’état d’une partie est invalide.
+   */
   getPodium() {
     this.refreshResults();
     const eliminated = [...this.eliminationOrder].reverse();
@@ -210,6 +276,11 @@ export class GameManager {
     }));
   }
 
+  /**
+   * Retourne l’état public complet du manager.
+   * @returns {Object} État du mode, des joueurs et du classement.
+   * @throws {Error} Si l’état d’une partie est invalide.
+   */
   getState() {
     this.refreshResults();
     return {
@@ -222,18 +293,30 @@ export class GameManager {
     };
   }
 
+  /**
+   * Démarre toutes les parties du manager.
+   * @returns {boolean} Vrai si les parties sont démarrées.
+   * @throws {Error} Si une partie ne peut pas être démarrée.
+   */
   start() {
     if (this.status === 'game-over') {
       return false;
     }
 
-    const started = this.instances.every(instance => instance.start());
+    const started = this.instances
+      .filter(instance => !instance.getState().gameOver)
+      .every(instance => instance.start());
     if (started) {
       this.status = 'playing';
     }
     return started;
   }
 
+  /**
+   * Met en pause les parties en cours.
+   * @returns {boolean} Vrai si les parties sont mises en pause.
+   * @throws {Error} Si une partie ne peut pas être mise en pause.
+   */
   pause() {
     const paused = this.instances
       .filter(instance => instance.getState().status === 'playing')
@@ -244,6 +327,11 @@ export class GameManager {
     return paused;
   }
 
+  /**
+   * Réinitialise toutes les parties et le classement.
+   * @returns {boolean} Toujours vrai après réinitialisation.
+   * @throws {Error} Si une partie ne peut pas être réinitialisée.
+   */
   restart() {
     this.instances.forEach(instance => instance.restart());
     this.status = 'ready';
@@ -253,22 +341,47 @@ export class GameManager {
     return true;
   }
 
+  /**
+   * Déplace le joueur humain vers la gauche.
+   * @returns {boolean} Vrai si le déplacement est effectué.
+   * @throws {Error} Si l’instance humaine est invalide.
+   */
   moveLeft() {
     return this.getInstance(this.humanIndex).moveLeft();
   }
 
+  /**
+   * Déplace le joueur humain vers la droite.
+   * @returns {boolean} Vrai si le déplacement est effectué.
+   * @throws {Error} Si l’instance humaine est invalide.
+   */
   moveRight() {
     return this.getInstance(this.humanIndex).moveRight();
   }
 
+  /**
+   * Fait tourner la pièce du joueur humain.
+   * @returns {boolean} Vrai si la rotation est effectuée.
+   * @throws {Error} Si l’instance humaine est invalide.
+   */
   rotate() {
     return this.getInstance(this.humanIndex).rotate();
   }
 
+  /**
+   * Fait descendre la pièce du joueur humain d’une ligne.
+   * @returns {boolean} Vrai si la pièce descend.
+   * @throws {Error} Si l’instance humaine est invalide.
+   */
   drop() {
     return this.getInstance(this.humanIndex).drop();
   }
 
+  /**
+   * Fait chuter directement la pièce du joueur humain.
+   * @returns {boolean} Vrai si la chute est traitée.
+   * @throws {Error} Si l’instance humaine est invalide.
+   */
   hardDrop() {
     return this.getInstance(this.humanIndex).hardDrop();
   }

@@ -215,3 +215,41 @@ Le score est multiplié par le niveau (calculateScore(2, 3) = 900), ce qui n'est
 - Remarque : l'agent a modifié le code de production (ai.js) pour l'expérience, pas seulement le script
 - Gardé / annulé : gardé
 - Itérations : 1
+
+## Exercice 6
+
+### Requête 1 – Mode Edit, JSDoc fichier par fichier
+- Prompt : « #file:src/core/<fichier> ajoute une JSDoc (description, @param, @returns, @throws) à chaque fonction exportée », envoyé pour piece.js, grid.js, scoring.js, game.js, gameInstance.js, gameManager.js, ai.js
+- Produit : JSDoc ajoutées dans les 7 fichiers
+- Relecture : la JSDoc de spawnNextPiece dit qu'elle fixe la pièce, ce qui est faux (corrigée à la main) ; des @throws inventés sur start, pause, moveLeft et getState, qui ne lancent aucune erreur ; GameManager.getState ne mentionne pas qu'elle modifie l'état (refreshResults)
+- npm test : 70 tests réussis
+- Gardé / annulé : gardé
+- Itérations : 1
+
+### Requête 2 – Agent, README et ARCHITECTURE
+- Prompt : « #codebase écris README.md (description, installation, lancement, commandes, règles, description des trois IA) et docs/ARCHITECTURE.md avec un diagramme de classes et un diagramme de séquence d'un tour de jeu en Mermaid »
+- Fichiers créés : README.md, docs/ARCHITECTURE.md
+- Relecture : diagrammes affichés avec l'aperçu Markdown (Ctrl+Shift+V). Il manque la dépendance GameManager → Grid, ainsi que game.js et main.js ; les flèches Renderer → GameManager et Input → GameManager ne correspondent pas à des import.
+Multiplicité « 0 » entre GameManager et AIPlayer incorrecte (devrait être 1).
+- Gardé / annulé : gardé
+- Itérations : 1
+
+### Requête 3 – Agent, revue
+- Prompt : « #codebase relis src/core et src/ui : bugs, duplications, fonctions trop longues, noms trompeurs ; classe par gravité, ne modifie rien »
+- Produit : 3 remarques importantes (reprise impossible après l'élimination de l'humain, IA bloquée sur un déplacement invalide, chute qui continue pendant la pause), 4 mineures (nom de tick(), retour ambigu de drop(), fonctions de rendu trop longues, appels répétés à getState()), et des duplications (cloneGrid inutilisée dans ai.js, cloneInitialGrid). Aucun fichier modifié.
+- Vérification : remarques 1 et 2 confirmées en lisant gameManager.js ; remarque 3 testée dans le navigateur : fausse
+- Itérations : 1
+
+### Requête 4 – Agent, correction de la remarque 1
+- Prompt : « corrige ce bug : dans gameManager.js, start() utilise every() et s'arrête sur le joueur humain s'il est en game-over, donc les IA ne reprennent pas après une pause ; les joueurs éliminés doivent être ignorés. Ajoute un test dans tests/gameManager.test.js, lance npm test»
+- Produit : dans gameManager.js, start() filtre les joueurs éliminés avant de relancer les parties ; nouveau test dans gameManager.test.js (VS 2 : l'humain est éliminé, pause, reprise → les IA repassent en « playing »)
+- npm test : 71 tests réussis
+- Gardé / annulé : gardé
+- Itérations : 1
+
+### Requête 5 – Agent, correction de la remarque 2
+- Prompt : « corrige ce bug : dans gameManager.js, playAiStep garde son plan si moveLeft() ou moveRight() échoue, donc l'IA peut rester bloquée ; si le déplacement est impossible, la pièce doit descendre (drop) au lieu de réessayer. Ajoute un test dans tests/gameManager.test.js, lance npm test »
+- Produit : dans gameManager.js, si le déplacement horizontal échoue, l'IA fait descendre la pièce (drop) au lieu de réessayer ; nouveau test dans gameManager.test.js (un bloc empêche le déplacement à droite → la pièce descend d'une ligne)
+- npm test : 72 tests réussis
+- Gardé / annulé : gardé
+- Itérations : 1

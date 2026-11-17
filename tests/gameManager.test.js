@@ -94,4 +94,46 @@ describe('GameManager', () => {
     const after = manager.getState().players[1].current;
     expect(after.column).not.toBe(before.column);
   });
+
+  it('reprend les IA après la pause même si le joueur humain est éliminé', () => {
+    const blockedGrid = createGrid();
+    blockedGrid[1].splice(3, 4, '#ffffff', '#ffffff', '#ffffff', '#ffffff');
+    const manager = new GameManager({
+      mode: 'versus-2',
+      rng: () => 0,
+      aiRng: () => 0,
+      initialGrids: [blockedGrid, createGrid(), createGrid()],
+    });
+
+    manager.start();
+    manager.hardDrop();
+    expect(manager.getState().players[0].gameOver).toBe(true);
+
+    expect(manager.pause()).toBe(true);
+    expect(manager.getState().players.slice(1).every(player => player.status === 'paused')).toBe(true);
+    expect(manager.start()).toBe(true);
+    expect(manager.getState().players.slice(1).every(player => player.status === 'playing')).toBe(true);
+  });
+
+  it('fait descendre une IA si son déplacement horizontal est impossible', () => {
+    const blockedGrid = createGrid();
+    blockedGrid[1][7] = '#ffffff';
+    const manager = new GameManager({
+      mode: 'versus-1',
+      rng: () => 0,
+      aiRng: () => 0,
+      initialGrids: [createGrid(), blockedGrid],
+    });
+
+    manager.start();
+    const state = manager.getState().players[1];
+    manager.aiPlans[1] = {
+      pieceType: state.current.type,
+      rotation: 0,
+      column: state.current.column + 1,
+    };
+
+    expect(manager.playAiStep(1)).toBe(true);
+    expect(manager.getState().players[1].current.row).toBe(1);
+  });
 });
